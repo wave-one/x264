@@ -1,0 +1,10 @@
+{
+    "files.associations": {
+        "filters.h": "c",
+        "mask.h": "c",
+        "__hash_table": "cpp",
+        "iterator": "cpp",
+        "memory": "cpp"
+    },
+    "C_Cpp.errorSquiggles": "Disabled"
+}

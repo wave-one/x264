@@ -682,7 +682,7 @@ static void mb_analyse_intra( x264_t *h, x264_mb_analysis_t *a, int i_satd_inter
           {I_PRED_4x4_DDR, I_PRED_4x4_VR, -1, -1, -1}}},
     };
 
-    int idx;
+    int idx;  // Index for iterating over subblocks
     int lambda = a->i_lambda;
 
     /*---------------- Try all mode and calculate their score ---------------*/
@@ -726,6 +726,7 @@ static void mb_analyse_intra( x264_t *h, x264_mb_analysis_t *a, int i_satd_inter
                 else
                     h->predict_16x16[i_mode]( p_dst );
 
+                // Reweight here
                 i_satd = h->pixf.mbcmp[PIXEL_16x16]( p_src, FENC_STRIDE, p_dst, FDEC_STRIDE ) +
                          lambda * bs_size_ue( x264_mb_pred_mode16x16_fix[i_mode] );
                 COPY2_IF_LT( a->i_satd_i16x16, i_satd, a->i_predict16x16, i_mode );
@@ -813,6 +814,7 @@ static void mb_analyse_intra( x264_t *h, x264_mb_analysis_t *a, int i_satd_inter
                     else
                         h->predict_8x8[i_mode]( p_dst_by, edge );
 
+                    // Reweight here
                     i_satd = sa8d( p_dst_by, FDEC_STRIDE, p_src_by, FENC_STRIDE );
                     if( i_pred_mode == x264_mb_pred_mode4x4_fix(i_mode) )
                         i_satd -= 3 * lambda;
@@ -2899,6 +2901,7 @@ static inline void mb_analyse_qp_rd( x264_t *h, x264_mb_analysis_t *a )
     }
 
     h->mb.i_qp = bqp;
+    // printf("Best qp: %d\n", bqp);
     h->mb.i_chroma_qp = h->chroma_qp_table[h->mb.i_qp];
 
     /* Check transform again; decision from before may no longer be optimal. */
@@ -3701,6 +3704,8 @@ skip_analysis:
     }
 
     analyse_update_cache( h, &analysis );
+
+    // End of initial frame analysis
 
     /* In rare cases we can end up qpel-RDing our way back to a larger partition size
      * without realizing it.  Check for this and account for it if necessary. */

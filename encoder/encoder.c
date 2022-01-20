@@ -26,7 +26,7 @@
  *****************************************************************************/
 
 #include "common/common.h"
-
+#include "mask.h"
 #include "set.h"
 #include "analyse.h"
 #include "ratecontrol.h"
@@ -2809,9 +2809,27 @@ static intptr_t slice_write( x264_t *h )
     i_mb_x = h->sh.i_first_mb % h->mb.i_mb_width;
     i_skip = 0;
 
+
+    // Create a mask to be used by the encoder.
+    // static double mask[h->mb.i_mb_height * h->mb.i_mb_width];
+    int mb_height = h->mb.i_mb_height;
+    int mb_width = h->mb.i_mb_width;
+    // FIXME: instead of drawing mask from fixed location, add command line argument.
+    const char *python_filename = "/tmp/mask.bin";
+    // FIXME: probably a better way to allocate memory here.
+    float mask[mb_height * mb_width];
+    load_mask(python_filename, mask, mb_height, mb_width);
+    // rescale_mask(mask, mb_height, mb_width, 0.1);
+    // print_mask(mask, mb_height, mb_width);
+    h->mb.weights = mask;
+
     while( 1 )
     {
         mb_xy = i_mb_x + i_mb_y * h->mb.i_mb_width;
+
+        h->mb.curr_weight = h->mb.weights[mb_xy];
+        // printf("mbxy: %d mb_x: %d mb_y: %d\n", mb_xy, i_mb_x, i_mb_y);
+        // printf("Curr Weight %f\n", h->mb.curr_weight);
         int mb_spos = bs_pos(&h->out.bs) + x264_cabac_pos(&h->cabac);
 
         if( i_mb_x == 0 )

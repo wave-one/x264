@@ -173,6 +173,9 @@ static int rd_cost_mb( x264_t *h, int i_lambda2 )
 
     i_ssd = ssd_mb( h );
 
+    i_ssd = i_ssd * h->mb.curr_weight; // Casts to int
+    // printf("Print i_qp: %d\n", h->mb.i_qp);
+
     if( IS_SKIP( h->mb.i_type ) )
     {
         i_bits = (1 * i_lambda2 + 128) >> 8;
@@ -193,7 +196,9 @@ static int rd_cost_mb( x264_t *h, int i_lambda2 )
     h->mb.b_transform_8x8 = b_transform_bak;
     h->mb.i_type = type_bak;
 
-    return X264_MIN( i_ssd + i_bits, COST_MAX );
+    int cost = X264_MIN( i_ssd + i_bits, COST_MAX );
+    // printf("MB RD Cost %d\n", cost);
+    return cost;
 }
 
 /* partition RD functions use 8 bits more precision to avoid large rounding errors at low QPs */

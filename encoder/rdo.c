@@ -173,7 +173,6 @@ static int rd_cost_mb( x264_t *h, int i_lambda2 )
 
     i_ssd = ssd_mb( h );
 
-    i_ssd = i_ssd * h->mb.curr_weight; // Casts to int
     // printf("Print i_qp: %d\n", h->mb.i_qp);
 
     if( IS_SKIP( h->mb.i_type ) )

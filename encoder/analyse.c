@@ -58,6 +58,8 @@ typedef struct
     /* conduct the analysis using this lamda and QP */
     int i_lambda;
     int i_lambda2;
+    int i_lambda_cache;
+    int i_lambda2_cache;
     int i_qp;
     uint16_t *p_cost_mv;
     uint16_t *p_cost_ref[2];
@@ -256,7 +258,9 @@ static void mb_analyse_init_qp( x264_t *h, x264_mb_analysis_t *a, int qp )
 {
     int effective_chroma_qp = h->chroma_qp_table[SPEC_QP(qp)] + X264_MAX( qp - QP_MAX_SPEC, 0 );
     a->i_lambda = x264_lambda_tab[qp];
+    a->i_lambda_cache = x264_lambda_tab[qp];
     a->i_lambda2 = x264_lambda2_tab[qp];
+    a->i_lambda2_cache = x264_lambda2_tab[qp];
 
     h->mb.b_trellis = h->param.analyse.i_trellis > 1 && a->i_mbrd;
     if( h->param.analyse.i_trellis )
@@ -694,6 +698,8 @@ static void mb_analyse_intra( x264_t *h, x264_mb_analysis_t *a, int i_satd_inter
         /* Not heavily tuned */
         static const uint8_t i16x16_thresh_lut[11] = { 2, 2, 2, 3, 3, 4, 4, 4, 4, 4, 4 };
         int i16x16_thresh = a->b_fast_intra ? (i16x16_thresh_lut[h->mb.i_subpel_refine]*i_satd_inter)>>1 : COST_MAX;
+        // FIXME: should the threshold be modified to take into account loss weight.
+        // Used for skipping Plane mode and for early termination in inter mode
 
         if( !h->mb.b_lossless && predict_mode[3] >= 0 )
         {
@@ -764,6 +770,7 @@ static void mb_analyse_intra( x264_t *h, x264_mb_analysis_t *a, int i_satd_inter
             pixel *p_src_by = p_src + 8*x + 8*y*FENC_STRIDE;
             pixel *p_dst_by = p_dst + 8*x + 8*y*FDEC_STRIDE;
             int i_best = COST_MAX;
+            // Why considering 4x4 while in 8x8?
             int i_pred_mode = x264_mb_predict_intra4x4_mode( h, 4*idx );
 
             const int8_t *predict_mode = predict_8x8_mode_available( a->b_avoid_topright, h->mb.i_neighbour8[idx], idx );
@@ -773,8 +780,10 @@ static void mb_analyse_intra( x264_t *h, x264_mb_analysis_t *a, int i_satd_inter
             {
                 /* No shortcuts here. The SSSE3 implementation of intra_mbcmp_x9 is fast enough. */
                 i_best = h->pixf.intra_mbcmp_x9_8x8( p_src_by, p_dst_by, edge, cost_i4x4_mode-i_pred_mode, a->i_satd_i8x8_dir[idx] );
-                i_cost += i_best & 0xffff;
-                i_best >>= 16;
+                // What is the purpose of cost_i4x4_mode-i_pred_mode?  
+                // cost_i4x4_mode is a pointer to the cost of 17 modes for a given QP
+                i_cost += (i_best & 0xffff); // Takes last 16 bits
+                i_best >>= 16;  // Stores mode in the rest of the bits
                 a->i_predict8x8[idx] = i_best;
                 if( idx == 3 || i_cost > i_satd_thresh )
                     break;
@@ -788,7 +797,7 @@ static void mb_analyse_intra( x264_t *h, x264_mb_analysis_t *a, int i_satd_inter
                     h->pixf.intra_mbcmp_x3_8x8( p_src_by, edge, satd );
                     int favor_vertical = satd[I_PRED_4x4_H] > satd[I_PRED_4x4_V];
                     if( i_pred_mode < 3 )
-                        satd[i_pred_mode] -= 3 * lambda;
+                        satd[i_pred_mode] -= 3 * lambda;  // What is going on here?
                     for( int i = 2; i >= 0; i-- )
                     {
                         int cost = satd[i];
@@ -814,11 +823,10 @@ static void mb_analyse_intra( x264_t *h, x264_mb_analysis_t *a, int i_satd_inter
                     else
                         h->predict_8x8[i_mode]( p_dst_by, edge );
 
-                    // Reweight here
                     i_satd = sa8d( p_dst_by, FDEC_STRIDE, p_src_by, FENC_STRIDE );
-                    if( i_pred_mode == x264_mb_pred_mode4x4_fix(i_mode) )
-                        i_satd -= 3 * lambda;
-
+                    if( i_pred_mode == x264_mb_pred_mode4x4_fix(i_mode) ){                        
+                        i_satd -= 3 * lambda;  // What is going on here?
+                    }
                     COPY2_IF_LT( i_best, i_satd, a->i_predict8x8[idx], i_mode );
                     a->i_satd_i8x8_dir[idx][i_mode] = i_satd + 4 * lambda;
                 }
@@ -858,6 +866,7 @@ static void mb_analyse_intra( x264_t *h, x264_mb_analysis_t *a, int i_satd_inter
             i_cost = (i_cost * cost_div_fix8[idx]) >> 8;
         }
         /* Not heavily tuned */
+        // Maybe needs to be modified
         static const uint8_t i8x8_thresh[11] = { 4, 4, 4, 5, 5, 5, 6, 6, 6, 6, 6 };
         if( a->b_early_terminate && X264_MIN(i_cost, a->i_satd_i16x16) > (i_satd_inter*i8x8_thresh[h->mb.i_subpel_refine])>>2 )
             return;
@@ -2932,6 +2941,12 @@ void x264_macroblock_analyse( x264_t *h )
     if( h->param.analyse.b_mb_info )
         h->fdec->effective_qp[h->mb.i_mb_xy] = h->mb.i_qp; /* Store the real analysis QP. */
     mb_analyse_init( h, &analysis, h->mb.i_qp );
+    // Change lambda for macroblock
+    // FIXME: this could be done more intelligently.
+    analysis.i_lambda = analysis.i_lambda_cache / h->mb.curr_weight_mode; 
+    analysis.i_lambda2 = analysis.i_lambda2_cache / h->mb.curr_weight;
+    analysis.i_lambda = x264_clip3(analysis.i_lambda, 1, (1 << 27) - 1);
+    analysis.i_lambda2 = x264_clip3(analysis.i_lambda2, 1, (1 << 27) - 1); // See tables.c for max value
 
     /*--------------------------- Do the analysis ---------------------------*/
     if( h->sh.i_type == SLICE_TYPE_I )

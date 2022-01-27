@@ -35,13 +35,11 @@ void rescale_mask(float mask[], int h, int w, float weight)
     }
 }
 
-void create_mask(float mask[], int h, int w)
+void create_mask(float mask[], int h, int w, float low)
 {
     /*
     Create a floating point mask to reweight the loss.
     */
-
-    float low = 0.01;
 
     int i, j;
     for (int idx = 0; idx < h * w; idx++)

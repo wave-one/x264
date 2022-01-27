@@ -584,8 +584,6 @@ static int param_apply_preset( x264_param_t *param, const char *preset )
         param->i_bframe = 8;
         param->rc.i_lookahead = 60;
 
-        // FIXME: forcing very slow to use only 16x16. 
-        param->analyse.intra = 0;
     }
     else if( !strcasecmp( preset, "placebo" ) )
     {

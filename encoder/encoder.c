@@ -32,6 +32,7 @@
 #include "ratecontrol.h"
 #include "macroblock.h"
 #include "me.h"
+#include <math.h>
 #if HAVE_INTEL_DISPATCHER
 #include "extras/intel_dispatcher.h"
 #endif
@@ -2815,11 +2816,15 @@ static intptr_t slice_write( x264_t *h )
     int mb_height = h->mb.i_mb_height;
     int mb_width = h->mb.i_mb_width;
     // FIXME: instead of drawing mask from fixed location, add command line argument.
-    const char *python_filename = "/tmp/mask.bin";
     // FIXME: probably a better way to allocate memory here.
     float mask[mb_height * mb_width];
+
+    const char *python_filename = "/tmp/mask.bin";
     load_mask(python_filename, mask, mb_height, mb_width);
-    // rescale_mask(mask, mb_height, mb_width, 0.1);
+
+    // float low = 0.1;
+    // create_mask(mask, mb_height, mb_width, low);
+
     // print_mask(mask, mb_height, mb_width);
     h->mb.weights = mask;
 
@@ -2828,6 +2833,7 @@ static intptr_t slice_write( x264_t *h )
         mb_xy = i_mb_x + i_mb_y * h->mb.i_mb_width;
 
         h->mb.curr_weight = h->mb.weights[mb_xy];
+        h->mb.curr_weight_mode = sqrtf(h->mb.curr_weight);
         // printf("mbxy: %d mb_x: %d mb_y: %d\n", mb_xy, i_mb_x, i_mb_y);
         // printf("Curr Weight %f\n", h->mb.curr_weight);
         int mb_spos = bs_pos(&h->out.bs) + x264_cabac_pos(&h->cabac);

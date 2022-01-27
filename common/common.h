@@ -537,6 +537,7 @@ struct x264_t
         // FIXME: Need to allocate memory properly.
         float *weights;                     /* Weights for spatial rate control. */
         float curr_weight;    /* hack: saving current weight for block */
+        float curr_weight_mode;    /* hack: saving current weight for block for mode selection*/
 
          /* buffer for weighted versions of the reference frames */
         pixel *p_weight_buf[X264_REF_MAX];

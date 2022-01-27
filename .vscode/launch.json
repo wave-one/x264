@@ -30,7 +30,7 @@
                 "--crf", "24", 
                 "-o", "/tmp/out.h264", 
                 "/Users/alexanderson/code/sources/soccer_close/downsampled/d3.y4m", 
-                "--frames", "1", 
+                "--frames", "2", 
                 "--preset", "veryslow"],
             "stopAtEntry": false,
             "cwd": "${fileDirname}",

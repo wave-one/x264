@@ -22,21 +22,21 @@
         //     "MIMode": "lldb"
         // },
         {
-            "name": "(lldb) Launch",
+            "name": "(gdb) Launch",
             "type": "cppdbg",
             "request": "launch",
             "program": "${workspaceFolder}/x264",
             "args": [
                 "--crf", "24", 
                 "-o", "/tmp/out.h264", 
-                "/Users/alexanderson/code/sources/soccer_close/downsampled/d3.y4m", 
-                "--frames", "2", 
+                "/home/alex/waveone/data/test/ParkScene_480x288.y4m",
+                "--frames", "3", 
                 "--preset", "veryslow"],
             "stopAtEntry": false,
             "cwd": "${fileDirname}",
             "environment": [],
             "externalConsole": false,
-            "MIMode": "lldb"
+            "MIMode": "gdb", // gdb on linux, lldb in mac
         },
     ]
 }

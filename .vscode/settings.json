@@ -4,7 +4,8 @@
         "mask.h": "c",
         "__hash_table": "cpp",
         "iterator": "cpp",
-        "memory": "cpp"
+        "memory": "cpp",
+        "assert.h": "c"
     },
     "C_Cpp.errorSquiggles": "Disabled"
 }

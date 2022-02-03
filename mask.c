@@ -12,14 +12,18 @@ void save_mask(const char *filename, float mask[], int h, int w)
     fclose(output_file);
 }
 
-void load_mask(const char *filename, float mask[], int h, int w)
+void load_mask(const char *filename, float mask[], int frame_number, int h, int w)
 {
+    /*
+    Load a mask of floats from a file for a given frame number (zero indexed).
+    */
     FILE *in_file = fopen(filename, "rb");
     if (!in_file)
     {
         printf("File not found\n");
         exit(1);
     }
+    fseek(in_file, __SIZEOF_FLOAT__ * h * w * frame_number, SEEK_SET);
     fread(mask, __SIZEOF_FLOAT__, h * w, in_file);
     fclose(in_file);
 }

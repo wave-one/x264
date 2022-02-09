@@ -375,6 +375,7 @@ typedef struct x264_param_t
 
     int         i_cqm_preset;
     char        *psz_cqm_file;      /* filename (in UTF-8) of CQM file, JM format */
+    char        *psz_impfile;      /* filename (in UTF-8) of Importance map file, JM format */
     uint8_t     cqm_4iy[16];        /* used only if i_cqm_preset == X264_CQM_CUSTOM */
     uint8_t     cqm_4py[16];
     uint8_t     cqm_4ic[16];

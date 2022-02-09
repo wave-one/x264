@@ -165,6 +165,7 @@ static const char * const opts_filename[] =
     "--opencl-clbin",
     "--output", "-o",
     "--qpfile",
+    "--impfile",
     "--stats",
     "--tcfile-in",
     "--tcfile-out",

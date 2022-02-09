@@ -2819,8 +2819,7 @@ static intptr_t slice_write( x264_t *h )
     // FIXME: probably a better way to allocate memory here.
     float mask[mb_height * mb_width];
 
-    const char *python_filename = "/tmp/mask.bin";
-    load_mask(python_filename, mask, h->i_frame, mb_height, mb_width);
+    load_mask(h->param.psz_impfile, mask, h->i_frame, mb_height, mb_width);
 
     // float low = 0.1;
     // create_mask(mask, mb_height, mb_width, low);

@@ -31,7 +31,9 @@
                 "-o", "/tmp/out.h264", 
                 "/home/alex/waveone/data/test/ParkScene_480x288.y4m",
                 "--frames", "3", 
-                "--preset", "veryslow"],
+                "--preset", "veryslow",
+                "--impfile", "/tmp/mask.bin"
+            ],
             "stopAtEntry": false,
             "cwd": "${fileDirname}",
             "environment": [],

@@ -128,6 +128,7 @@ typedef struct {
     hnd_t hin;
     hnd_t hout;
     FILE *qpfile;
+    // FILE *impfile; // File for importance weights FIXME: enable
     FILE *tcfile_out;
     double timebase_convert_multiplier;
     int i_pulldown;
@@ -402,6 +403,8 @@ REALIGN_STACK int main( int argc, char **argv )
         fclose( opt.tcfile_out );
     if( opt.qpfile )
         fclose( opt.qpfile );
+    // if( opt.impfile)   FIXME: enable
+    //     fclose( opt.impfile);
     x264_param_cleanup( &param );
 
 #ifdef _WIN32
@@ -772,6 +775,8 @@ static void help( x264_param_t *defaults, int longhelp )
         "                              QP is optional (none lets x264 choose). Frametypes: I,i,K,P,B,b.\n"
         "                                  K=<I or i> depending on open-gop setting\n"
         "                              QPs are restricted by qpmin/qpmax.\n" );
+    H2( "      --impfile <string>     Set importance weight per macroblock for each frame of the video\n"
+        "                              Weights are stored as floats.\n");
     H1( "\n" );
     H1( "Analysis:\n" );
     H1( "\n" );
@@ -977,6 +982,7 @@ typedef enum
     OPT_FRAMES = 256,
     OPT_SEEK,
     OPT_QPFILE,
+    OPT_IMPFILE,
     OPT_THREAD_INPUT,
     OPT_QUIET,
     OPT_NOPROGRESS,
@@ -1112,6 +1118,7 @@ static struct option long_options[] =
     { "cplxblur",             required_argument, NULL, 0 },
     { "zones",                required_argument, NULL, 0 },
     { "qpfile",               required_argument, NULL, OPT_QPFILE },
+    { "impfile",              required_argument, NULL, OPT_IMPFILE },
     { "threads",              required_argument, NULL, 0 },
     { "lookahead-threads",    required_argument, NULL, 0 },
     { "sliced-threads",       no_argument,       NULL, 0 },
@@ -1488,6 +1495,19 @@ static int parse( int argc, char **argv, x264_param_t *param, cli_opt_t *opt )
                     return -1;
                 }
                 break;
+            case OPT_IMPFILE:
+                param->psz_impfile = optarg;
+                // FIXME: enable loading here?
+                // opt->impfile = x264_fopen( optarg, "rb" );
+                // FAIL_IF_ERROR( !opt->impfile, "can't open impfile `%s'\n", optarg );
+                // if( !x264_is_regular_file( opt->impfile ) )
+                // {
+                //     x264_cli_log( "x264", X264_LOG_ERROR, "impfile incompatible with non-regular file `%s'\n", optarg );
+                //     fclose( opt->impfile );
+                //     return -1;
+                // }
+                break;
+
             case OPT_THREAD_INPUT:
                 b_thread_input = 1;
                 break;
@@ -1793,6 +1813,13 @@ generic_option:
     return 0;
 }
 
+
+static void parse_impfile( cli_opt_t *opt, x264_picture_t *pic, int i_frame ) {
+ /*
+ Stub for parsing importance file.  Note: arguments may need to change. 
+ */
+}
+
 static void parse_qpfile( cli_opt_t *opt, x264_picture_t *pic, int i_frame )
 {
     int num = -1;
@@ -2006,6 +2033,11 @@ static int encode( x264_param_t *param, cli_opt_t *opt )
 
         if( opt->qpfile )
             parse_qpfile( opt, &pic, i_frame + opt->i_seek );
+        
+        if( opt->impfile ) {
+            // FIXME: currently does nothing -> need to decide correct place to load weights.
+            parse_impfile(opt, &pic, i_frame + opt->i_seek);
+        }
 
         prev_dts = last_dts;
         i_frame_size = encode_frame( h, opt->hout, &pic, &last_dts );

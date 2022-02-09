@@ -2034,10 +2034,10 @@ static int encode( x264_param_t *param, cli_opt_t *opt )
         if( opt->qpfile )
             parse_qpfile( opt, &pic, i_frame + opt->i_seek );
         
-        if( opt->impfile ) {
-            // FIXME: currently does nothing -> need to decide correct place to load weights.
-            parse_impfile(opt, &pic, i_frame + opt->i_seek);
-        }
+        // if( opt->impfile ) {
+        //     // FIXME: currently does nothing -> need to decide correct place to load weights.
+        //     parse_impfile(opt, &pic, i_frame + opt->i_seek);
+        // }
 
         prev_dts = last_dts;
         i_frame_size = encode_frame( h, opt->hout, &pic, &last_dts );

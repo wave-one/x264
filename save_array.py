@@ -15,5 +15,5 @@ def save_array(arr, path):
 if __name__ == '__main__':
     arr = np.zeros((n_frames, h, w)).astype('float32')
     for i in range(n_frames):
-        arr[i] = i + 1
+        arr[i] = (i + 1) * 0.25   
     save_array(arr, mask_loc)

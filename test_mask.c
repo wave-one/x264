@@ -34,7 +34,9 @@ int main()
     for (int n = 0; n<10; n++) {
         float pv[h * w];
         load_mask(python_filename, pv, n, h, w);
-        assert(pv[0] == n + 1);
+        for (int j = 0; j < h * w; j++) {
+            assert(pv[j] == (n + 1) * 0.25f);
+        }
         // print_mask(pv, h, w);
         // printf("\n");
     }

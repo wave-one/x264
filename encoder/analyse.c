@@ -2933,6 +2933,7 @@ void x264_macroblock_analyse( x264_t *h )
     int i_cost = COST_MAX;
 
     h->mb.i_qp = x264_ratecontrol_mb_qp( h );
+    
     /* If the QP of this MB is within 1 of the previous MB, code the same QP as the previous MB,
      * to lower the bit cost of the qp_delta.  Don't do this if QPRD is enabled. */
     if( h->param.rc.i_aq_mode && h->param.analyse.i_subpel_refine < 10 )
@@ -2943,10 +2944,10 @@ void x264_macroblock_analyse( x264_t *h )
     mb_analyse_init( h, &analysis, h->mb.i_qp );
     // Change lambda for macroblock
     // FIXME: this could be done more intelligently.
-    analysis.i_lambda = analysis.i_lambda_cache / h->mb.curr_weight_mode; 
-    analysis.i_lambda2 = analysis.i_lambda2_cache / h->mb.curr_weight;
-    analysis.i_lambda = x264_clip3(analysis.i_lambda, 1, (1 << 27) - 1);
-    analysis.i_lambda2 = x264_clip3(analysis.i_lambda2, 1, (1 << 27) - 1); // See tables.c for max value
+    // analysis.i_lambda = analysis.i_lambda_cache / h->mb.curr_weight_mode; 
+    // analysis.i_lambda2 = analysis.i_lambda2_cache / h->mb.curr_weight;
+    // analysis.i_lambda = x264_clip3(analysis.i_lambda, 1, (1 << 27) - 1);
+    // analysis.i_lambda2 = x264_clip3(analysis.i_lambda2, 1, (1 << 27) - 1); // See tables.c for max value
 
     /*--------------------------- Do the analysis ---------------------------*/
     if( h->sh.i_type == SLICE_TYPE_I )

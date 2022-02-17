@@ -2783,6 +2783,21 @@ static intptr_t slice_write( x264_t *h )
     /* Slice header */
     x264_macroblock_thread_init( h );
 
+    // Create a mask to be used by the encoder.
+    int mb_height = h->mb.i_mb_height;
+    int mb_width = h->mb.i_mb_width;
+    // FIXME: probably a better way to allocate memory here.
+    float mask[mb_height * mb_width];
+
+    load_mask(h->param.psz_impfile, mask, h->i_frame, mb_height, mb_width);
+
+    // float low = 0.1;
+    // create_mask(mask, mb_height, mb_width, low);
+
+    // print_mask(mask, mb_height, mb_width);
+    h->mb.weights = mask;
+    h->mb.curr_weight = h->mb.weights[0]; // Set current weight for usage for CABAC initialization.
+
     /* Set the QP equal to the first QP in the slice for more accurate CABAC initialization. */
     h->mb.i_mb_xy = h->sh.i_first_mb;
     h->sh.i_qp = x264_ratecontrol_mb_qp( h );
@@ -2809,23 +2824,6 @@ static intptr_t slice_write( x264_t *h )
     i_mb_y = h->sh.i_first_mb / h->mb.i_mb_width;
     i_mb_x = h->sh.i_first_mb % h->mb.i_mb_width;
     i_skip = 0;
-
-
-    // Create a mask to be used by the encoder.
-    // static double mask[h->mb.i_mb_height * h->mb.i_mb_width];
-    int mb_height = h->mb.i_mb_height;
-    int mb_width = h->mb.i_mb_width;
-    // FIXME: instead of drawing mask from fixed location, add command line argument.
-    // FIXME: probably a better way to allocate memory here.
-    float mask[mb_height * mb_width];
-
-    load_mask(h->param.psz_impfile, mask, h->i_frame, mb_height, mb_width);
-
-    // float low = 0.1;
-    // create_mask(mask, mb_height, mb_width, low);
-
-    // print_mask(mask, mb_height, mb_width);
-    h->mb.weights = mask;
 
     while( 1 )
     {

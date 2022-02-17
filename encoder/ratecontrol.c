@@ -1,4 +1,4 @@
-jj/*****************************************************************************
+/*****************************************************************************
  * ratecontrol.c: ratecontrol
  *****************************************************************************
  * Copyright (C) 2005-2021 x264 project
@@ -1754,7 +1754,7 @@ int x264_ratecontrol_mb_qp( x264_t *h )
     const float MIN_W = 0.01;  // Approximately delta QP of 20.
     if (w < MIN_W) {
         w = MIN_W;
-        printf("Weight too close to zero. Forcing it to be 0.01. Fix the importance map.")
+        printf("Weight too close to zero. Forcing it to be 0.01. Fix the importance map.");
     }
     qp -= 3 * log2f(w);
     // qp -= 3 * log2f(h->mb.weights[h->mb.i_mb_xy]);

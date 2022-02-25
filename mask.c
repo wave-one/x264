@@ -20,7 +20,7 @@ void load_mask(const char *filename, float mask[], int frame_number, int h, int 
     FILE *in_file = fopen(filename, "rb");
     if (!in_file)
     {
-        printf("File not found\n");
+        printf("Importance mask file not found\n");
         exit(1);
     }
     fseek(in_file, __SIZEOF_FLOAT__ * h * w * frame_number, SEEK_SET);

@@ -4,25 +4,26 @@
     // For more information, visit: https://go.microsoft.com/fwlink/?linkid=830387
     "version": "0.2.0",
     "configurations": [
-        // {
-        //     "name": "(lldb) Launch",
-        //     "type": "cppdbg",
-        //     "request": "launch",
-        //     "program": "${workspaceFolder}/x264",
-        //     "args": [
-        //         "--crf", "24", 
-        //         "-o", "/tmp/out.h264", 
-        //         "/Users/alexanderson/code/sources/ParkScene_480x288.y4m", 
-        //         "--frames", "3", 
-        //         "--preset", "veryslow"],
-        //     "stopAtEntry": false,
-        //     "cwd": "${fileDirname}",
-        //     "environment": [],
-        //     "externalConsole": false,
-        //     "MIMode": "lldb"
-        // },
         {
-            "name": "(gdb) Launch",
+            "name": "(lldb) Launch",  // Useful for running on Mac
+            "type": "cppdbg",
+            "request": "launch",
+            "program": "${workspaceFolder}/x264",
+            "args": [
+                "--crf", "24", 
+                "-o", "/tmp/out.h264", 
+                "${workspaceFolder}/data/ParkScene_480x288.y4m",
+                "--frames", "3", 
+                "--impfile", "/tmp/mask.bin",
+            ],
+            "stopAtEntry": false,
+            "cwd": "${fileDirname}",
+            "environment": [],
+            "externalConsole": false,
+            "MIMode": "lldb"
+        },
+        {
+            "name": "(gdb) Launch",  // Useful for linux
             "type": "cppdbg",
             "request": "launch",
             "program": "${workspaceFolder}/x264",

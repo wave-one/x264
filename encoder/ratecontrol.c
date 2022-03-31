@@ -1757,7 +1757,6 @@ int x264_ratecontrol_mb_qp( x264_t *h )
         printf("Weight too close to zero. Forcing it to be 0.01. Fix the importance map.");
     }
     qp -= 3 * log2f(w);
-    // qp -= 3 * log2f(h->mb.weights[h->mb.i_mb_xy]);
     if( h->param.rc.i_aq_mode )
     {
          /* MB-tree currently doesn't adjust quantizers in unreferenced frames. */

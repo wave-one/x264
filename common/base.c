@@ -583,7 +583,6 @@ static int param_apply_preset( x264_param_t *param, const char *preset )
         param->analyse.i_trellis = 2;
         param->i_bframe = 8;
         param->rc.i_lookahead = 60;
-
     }
     else if( !strcasecmp( preset, "placebo" ) )
     {
@@ -1164,6 +1163,9 @@ REALIGN_STACK int x264_param_parse( x264_param_t *p, const char *name, const cha
     }
     OPT("cqmfile")
         CHECKED_ERROR_PARAM_STRDUP( p->psz_cqm_file, p, value );
+    OPT("impfile")
+        CHECKED_ERROR_PARAM_STRDUP( p->psz_cqm_file, p, value );
+
     OPT("cqm4")
     {
         p->i_cqm_preset = X264_CQM_CUSTOM;

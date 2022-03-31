@@ -534,7 +534,7 @@ struct x264_t
         int8_t  *mb_transform_size;         /* transform_size_8x8_flag of each mb */
         int32_t *slice_table;               /* sh->first_mb of the slice that the indexed mb is part of */
         uint8_t *field;
-        // FIXME: Need to allocate memory properly.
+        // TODO: Memory for the weights could be allocated better.
         float *weights;                     /* Weights for spatial rate control. */
         float curr_weight;    /* hack: saving current weight for block */
         float curr_weight_mode;    /* hack: saving current weight for block for mode selection*/

@@ -2786,15 +2786,12 @@ static intptr_t slice_write( x264_t *h )
     // Create a mask to be used by the encoder.
     int mb_height = h->mb.i_mb_height;
     int mb_width = h->mb.i_mb_width;
-    // FIXME: probably a better way to allocate memory here.
+    // FIXME: probably safer to not allocate memory to the stack.
     float mask[mb_height * mb_width];
 
     load_mask(h->param.psz_impfile, mask, h->i_frame, mb_height, mb_width);
-
-    // float low = 0.1;
-    // create_mask(mask, mb_height, mb_width, low);
-
     // print_mask(mask, mb_height, mb_width);
+
     h->mb.weights = mask;
     h->mb.curr_weight = h->mb.weights[0]; // Set current weight for usage for CABAC initialization.
 

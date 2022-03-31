@@ -5,7 +5,7 @@ import numpy as np
 
 mask_loc = "/tmp/mask.bin"
 n_frames = 10
-h = 18  # Dimensions for park scene video.
+h = 18  # Dimensions for park scene video divided by 16.
 w = 30
 
 def save_array(arr, path):
@@ -15,5 +15,5 @@ def save_array(arr, path):
 if __name__ == '__main__':
     arr = np.zeros((n_frames, h, w)).astype('float32')
     for i in range(n_frames):
-        arr[i] = (i + 1) * 0.25   
+        arr[i] = (i + 1) * 0.25
     save_array(arr, mask_loc)

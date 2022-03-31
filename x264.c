@@ -128,7 +128,7 @@ typedef struct {
     hnd_t hin;
     hnd_t hout;
     FILE *qpfile;
-    // FILE *impfile; // File for importance weights FIXME: enable
+    FILE *impfile; // File handle for importance weights
     FILE *tcfile_out;
     double timebase_convert_multiplier;
     int i_pulldown;
@@ -403,8 +403,8 @@ REALIGN_STACK int main( int argc, char **argv )
         fclose( opt.tcfile_out );
     if( opt.qpfile )
         fclose( opt.qpfile );
-    // if( opt.impfile)   FIXME: enable
-    //     fclose( opt.impfile);
+    if( opt.impfile)
+        fclose( opt.impfile);
     x264_param_cleanup( &param );
 
 #ifdef _WIN32
@@ -1497,15 +1497,14 @@ static int parse( int argc, char **argv, x264_param_t *param, cli_opt_t *opt )
                 break;
             case OPT_IMPFILE:
                 param->psz_impfile = optarg;
-                // FIXME: enable loading here?
-                // opt->impfile = x264_fopen( optarg, "rb" );
-                // FAIL_IF_ERROR( !opt->impfile, "can't open impfile `%s'\n", optarg );
-                // if( !x264_is_regular_file( opt->impfile ) )
-                // {
-                //     x264_cli_log( "x264", X264_LOG_ERROR, "impfile incompatible with non-regular file `%s'\n", optarg );
-                //     fclose( opt->impfile );
-                //     return -1;
-                // }
+                opt->impfile = x264_fopen( optarg, "rb" );
+                FAIL_IF_ERROR( !opt->impfile, "can't open impfile `%s'\n", optarg );
+                if( !x264_is_regular_file( opt->impfile ) )
+                {
+                    x264_cli_log( "x264", X264_LOG_ERROR, "impfile incompatible with non-regular file `%s'\n", optarg );
+                    fclose( opt->impfile );
+                    return -1;
+                }
                 break;
 
             case OPT_THREAD_INPUT:
@@ -1815,9 +1814,10 @@ generic_option:
 
 
 static void parse_impfile( cli_opt_t *opt, x264_picture_t *pic, int i_frame ) {
- /*
- Stub for parsing importance file.  Note: arguments may need to change. 
- */
+    /*
+    Stub for parsing importance file.  This may be a good place to load the weights for each frame.
+    Note: arguments may need to change.
+    */
 }
 
 static void parse_qpfile( cli_opt_t *opt, x264_picture_t *pic, int i_frame )
@@ -2033,9 +2033,8 @@ static int encode( x264_param_t *param, cli_opt_t *opt )
 
         if( opt->qpfile )
             parse_qpfile( opt, &pic, i_frame + opt->i_seek );
-        
+
         // if( opt->impfile ) {
-        //     // FIXME: currently does nothing -> need to decide correct place to load weights.
         //     parse_impfile(opt, &pic, i_frame + opt->i_seek);
         // }
 
